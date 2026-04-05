@@ -16,7 +16,7 @@ from date_utils import (
     normalizar_data_entrega,
     resolver_data_entrega,
 )
-from models import ProgramacaoEntrega
+from models import ItemProgramacao, ProgramacaoEmail, ProgramacaoEntrega
 from report_excel import exportar_relatorio_profissional
 
 
@@ -116,18 +116,44 @@ class TestClientSecretsPath(unittest.TestCase):
 
 
 class TestProgramacaoModel(unittest.TestCase):
-    def test_parse(self):
-        dt = datetime(2025, 6, 1, 14, 30)
-        m = ProgramacaoEntrega(
-            material="Paletes", volume=12.5, data_horario_previsto=dt
-        )
-        self.assertEqual(m.material, "Paletes")
-        self.assertEqual(m.volume, 12.5)
-        self.assertEqual(m.data_horario_previsto, dt)
+    def test_item_programacao(self):
+        it = ItemProgramacao(material="Paletes", volume=12.5)
+        self.assertEqual(it.material, "Paletes")
+        self.assertEqual(it.volume, 12.5)
 
-    def test_data_opcional(self):
-        m = ProgramacaoEntrega(material="X", volume=1.0, data_horario_previsto=None)
-        self.assertIsNone(m.data_horario_previsto)
+    def test_email_com_data(self):
+        dt = datetime(2025, 6, 1, 14, 30)
+        e = ProgramacaoEmail(
+            itens=[ItemProgramacao(material="Paletes", volume=12.5)],
+            data_horario_previsto=dt,
+        )
+        self.assertEqual(len(e.itens), 1)
+        self.assertEqual(e.data_horario_previsto, dt)
+
+    def test_data_opcional_no_email(self):
+        e = ProgramacaoEmail(
+            itens=[ItemProgramacao(material="X", volume=1.0)],
+            data_horario_previsto=None,
+        )
+        self.assertIsNone(e.data_horario_previsto)
+
+    def test_alias_programacao_entrega(self):
+        it = ProgramacaoEntrega(material="Parafuso", volume=10)
+        self.assertEqual(it.material, "Parafuso")
+
+    def test_multiplos_itens_estilo_lista_email(self):
+        dt = datetime(2026, 4, 17, 12, 0)
+        e = ProgramacaoEmail(
+            itens=[
+                ItemProgramacao(material="Parafuso", volume=10),
+                ItemProgramacao(material="Porca", volume=8),
+                ItemProgramacao(material="Arruela", volume=15),
+                ItemProgramacao(material="Rebite", volume=20),
+            ],
+            data_horario_previsto=dt,
+        )
+        self.assertEqual(len(e.itens), 4)
+        self.assertEqual(e.itens[2].material, "Arruela")
 
 
 class TestReportExcel(unittest.TestCase):

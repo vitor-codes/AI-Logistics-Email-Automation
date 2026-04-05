@@ -46,14 +46,19 @@ def main():
                 else:
                     data_formatada = ""
 
-                registros.append(
-                    {
-                        "material": dados.material,
-                        "volume": dados.volume,
-                        "data_prevista": data_formatada,
-                        "data_datetime": data_dt,
-                    }
-                )
+                if not dados.itens:
+                    print("Nenhum item extraído da lista de materiais; trecho ignorado.")
+                    continue
+
+                for item in dados.itens:
+                    registros.append(
+                        {
+                            "material": item.material,
+                            "volume": item.volume,
+                            "data_prevista": data_formatada,
+                            "data_datetime": data_dt,
+                        }
+                    )
 
             except Exception as e:
                 print("Não foi possível extrair:", e)
