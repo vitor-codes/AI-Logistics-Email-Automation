@@ -64,5 +64,6 @@ dmypy.json
 *.tmp
 *.temp
 
-
+# Relatórios gerados
+outputs/
 
